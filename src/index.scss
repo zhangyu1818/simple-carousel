@@ -1,0 +1,15 @@
+.carousel {
+    font-size: 0;
+    overflow: hidden;
+    .scroll {
+        width: max-content;
+        white-space: nowrap;
+        .slider {
+            display: inline-block;
+            .slider-inner {
+                height: 0;
+                background: center/contain no-repeat;
+            }
+        }
+    }
+}
