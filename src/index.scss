@@ -1,15 +1,42 @@
 .carousel {
     font-size: 0;
     overflow: hidden;
+    cursor: pointer;
+    position: relative;
     .scroll {
-        width: max-content;
-        white-space: nowrap;
+        will-change: transform;
+        position: relative;
         .slider {
-            display: inline-block;
+            position: absolute;
+            top: 0;
+            left: 0;
             .slider-inner {
                 height: 0;
                 background: center/contain no-repeat;
             }
+        }
+    }
+    .pagination {
+        position: absolute;
+        font-size: 0;
+        width: 100%;
+        left: 0;
+        bottom: 20px;
+        text-align: center;
+        .dot {
+            & + .dot {
+                margin-left: 10px;
+            }
+            &.current {
+                background: rgba(#666, 0.7);
+            }
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background: #000;
+            border-radius: 50%;
+            background: rgba(#bbb, 0.6);
+            transition: width 1s;
         }
     }
 }
