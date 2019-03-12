@@ -1,9 +1,9 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 const webpack = require('webpack');
-console.log(process.env.NODE_ENV)
 module.exports = {
     mode: 'development',
+    devtool: 'cheap-module-eval-source-map',
     entry: {
         index: './src/index.ts',
         demo: './src/demo.ts',
@@ -22,8 +22,19 @@ module.exports = {
                 use: {
                     loader: 'babel-loader',
                     options: {
-                        presets: ['@babel/preset-env'],
-                        plugins: ['@babel/plugin-transform-runtime', '@babel/plugin-transform-typescript', '@babel/plugin-proposal-class-properties'],
+                        plugins: [
+                            [
+                                '@babel/plugin-transform-runtime',
+                                {
+                                    corejs: 2,
+                                    helpers: true,
+                                    regenerator: true,
+                                    useESModules: false,
+                                },
+                            ],
+                            '@babel/plugin-transform-typescript',
+                            '@babel/plugin-proposal-class-properties',
+                        ],
                     },
                 },
             },
