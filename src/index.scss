@@ -7,14 +7,13 @@
         will-change: transform;
         position: relative;
         z-index: -1;
+        width: max-content;
+        white-space: nowrap;
+        overflow: hidden;
+        left: -100%;
         .slider {
-            position: absolute;
-            top: 0;
-            left: 0;
-            .slider-inner {
-                height: 0;
-                background: center/contain no-repeat;
-            }
+            float: left;
+            background: center/contain no-repeat;
         }
     }
     .pagination {

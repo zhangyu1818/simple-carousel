@@ -3,13 +3,11 @@ const Tween = {
     Quad: {
         easeIn: (t: number, b: number, c: number, d: number) => c * (t /= d) * t + b,
         easeOut: (t: number, b: number, c: number, d: number) => -c * (t /= d) * (t - 2) + b,
-        easeInOut: (t: number, b: number, c: number, d: number) =>
-            (t /= d / 2) < 1 ? (c / 2) * t * t + b : (-c / 2) * (--t * (t - 2) - 1) + b,
+        easeInOut: (t: number, b: number, c: number, d: number) => ((t /= d / 2) < 1 ? (c / 2) * t * t + b : (-c / 2) * (--t * (t - 2) - 1) + b),
     },
     Cubic: {
         easeIn: (t: number, b: number, c: number, d: number) => c * (t /= d) * t * t + b,
-        easeOut: (t: number, b: number, c: number, d: number) =>
-            c * ((t = t / d - 1) * t * t + 1) + b,
+        easeOut: (t: number, b: number, c: number, d: number) => c * ((t = t / d - 1) * t * t + 1) + b,
         easeInOut: (t: number, b: number, c: number, d: number) => {
             if ((t /= d / 2) < 1) return (c / 2) * t * t * t + b;
             return (c / 2) * ((t -= 2) * t * t + 2) + b;
@@ -17,8 +15,7 @@ const Tween = {
     },
     Quart: {
         easeIn: (t: number, b: number, c: number, d: number) => c * (t /= d) * t * t * t + b,
-        easeOut: (t: number, b: number, c: number, d: number) =>
-            -c * ((t = t / d - 1) * t * t * t - 1) + b,
+        easeOut: (t: number, b: number, c: number, d: number) => -c * ((t = t / d - 1) * t * t * t - 1) + b,
         easeInOut: (t: number, b: number, c: number, d: number) => {
             if ((t /= d / 2) < 1) return (c / 2) * t * t * t * t + b;
             return (-c / 2) * ((t -= 2) * t * t * t - 2) + b;
@@ -26,26 +23,20 @@ const Tween = {
     },
     Quint: {
         easeIn: (t: number, b: number, c: number, d: number) => c * (t /= d) * t * t * t * t + b,
-        easeOut: (t: number, b: number, c: number, d: number) =>
-            c * ((t = t / d - 1) * t * t * t * t + 1) + b,
+        easeOut: (t: number, b: number, c: number, d: number) => c * ((t = t / d - 1) * t * t * t * t + 1) + b,
         easeInOut: (t: number, b: number, c: number, d: number) => {
             if ((t /= d / 2) < 1) return (c / 2) * t * t * t * t * t + b;
             return (c / 2) * ((t -= 2) * t * t * t * t + 2) + b;
         },
     },
     Sine: {
-        easeIn: (t: number, b: number, c: number, d: number) =>
-            -c * Math.cos((t / d) * (Math.PI / 2)) + c + b,
-        easeOut: (t: number, b: number, c: number, d: number) =>
-            c * Math.sin((t / d) * (Math.PI / 2)) + b,
-        easeInOut: (t: number, b: number, c: number, d: number) =>
-            (-c / 2) * (Math.cos((Math.PI * t) / d) - 1) + b,
+        easeIn: (t: number, b: number, c: number, d: number) => -c * Math.cos((t / d) * (Math.PI / 2)) + c + b,
+        easeOut: (t: number, b: number, c: number, d: number) => c * Math.sin((t / d) * (Math.PI / 2)) + b,
+        easeInOut: (t: number, b: number, c: number, d: number) => (-c / 2) * (Math.cos((Math.PI * t) / d) - 1) + b,
     },
     Expo: {
-        easeIn: (t: number, b: number, c: number, d: number) =>
-            t == 0 ? b : c * Math.pow(2, 10 * (t / d - 1)) + b,
-        easeOut: (t: number, b: number, c: number, d: number) =>
-            t == d ? b + c : c * (-Math.pow(2, (-10 * t) / d) + 1) + b,
+        easeIn: (t: number, b: number, c: number, d: number) => (t == 0 ? b : c * Math.pow(2, 10 * (t / d - 1)) + b),
+        easeOut: (t: number, b: number, c: number, d: number) => (t == d ? b + c : c * (-Math.pow(2, (-10 * t) / d) + 1) + b),
         easeInOut: (t: number, b: number, c: number, d: number) => {
             if (t == 0) return b;
             if (t == d) return b + c;
@@ -54,10 +45,8 @@ const Tween = {
         },
     },
     Circ: {
-        easeIn: (t: number, b: number, c: number, d: number) =>
-            -c * (Math.sqrt(1 - (t /= d) * t) - 1) + b,
-        easeOut: (t: number, b: number, c: number, d: number) =>
-            c * Math.sqrt(1 - (t = t / d - 1) * t) + b,
+        easeIn: (t: number, b: number, c: number, d: number) => -c * (Math.sqrt(1 - (t /= d) * t) - 1) + b,
+        easeOut: (t: number, b: number, c: number, d: number) => c * Math.sqrt(1 - (t = t / d - 1) * t) + b,
         easeInOut: (t: number, b: number, c: number, d: number) => {
             if ((t /= d / 2) < 1) return (-c / 2) * (Math.sqrt(1 - t * t) - 1) + b;
             return (c / 2) * (Math.sqrt(1 - (t -= 2) * t) + 1) + b;
@@ -75,9 +64,7 @@ const Tween = {
             } else {
                 s = (p / (2 * Math.PI)) * Math.asin(c / a);
             }
-            return (
-                -(a * Math.pow(2, 10 * (t -= 1)) * Math.sin(((t * d - s) * (2 * Math.PI)) / p)) + b
-            );
+            return -(a * Math.pow(2, 10 * (t -= 1)) * Math.sin(((t * d - s) * (2 * Math.PI)) / p)) + b;
         },
         easeOut: (t: number, b: number, c: number, d: number, a: number, p: number) => {
             let s;
@@ -103,22 +90,8 @@ const Tween = {
             } else {
                 s = (p / (2 * Math.PI)) * Math.asin(c / a);
             }
-            if (t < 1)
-                return (
-                    -0.5 *
-                        (a *
-                            Math.pow(2, 10 * (t -= 1)) *
-                            Math.sin(((t * d - s) * (2 * Math.PI)) / p)) +
-                    b
-                );
-            return (
-                a *
-                    Math.pow(2, -10 * (t -= 1)) *
-                    Math.sin(((t * d - s) * (2 * Math.PI)) / p) *
-                    0.5 +
-                c +
-                b
-            );
+            if (t < 1) return -0.5 * (a * Math.pow(2, 10 * (t -= 1)) * Math.sin(((t * d - s) * (2 * Math.PI)) / p)) + b;
+            return a * Math.pow(2, -10 * (t -= 1)) * Math.sin(((t * d - s) * (2 * Math.PI)) / p) * 0.5 + c + b;
         },
     },
     Back: {
@@ -137,8 +110,7 @@ const Tween = {
         },
     },
     Bounce: {
-        easeIn: (t: number, b: number, c: number, d: number) =>
-            c - Tween.Bounce.easeOut(d - t, 0, c, d) + b,
+        easeIn: (t: number, b: number, c: number, d: number) => c - Tween.Bounce.easeOut(d - t, 0, c, d) + b,
         easeOut: (t: number, b: number, c: number, d: number) => {
             if ((t /= d) < 1 / 2.75) {
                 return c * (7.5625 * t * t) + b;

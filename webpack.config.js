@@ -1,9 +1,16 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 const webpack = require('webpack');
+console.log(process.env.NODE_ENV)
 module.exports = {
     mode: 'development',
-    entry: './src/index.ts',
+    entry: {
+        index: './src/index.ts',
+        demo: './src/demo.ts',
+    },
+    output: {
+        filename: '[name].js',
+    },
     resolve: {
         extensions: ['.ts', '.js'],
     },
@@ -47,6 +54,7 @@ module.exports = {
         new CleanWebpackPlugin(),
         new HtmlWebpackPlugin({
             template: './src/index.html',
+            chunks: ['demo'],
         }),
     ],
     devServer: {
