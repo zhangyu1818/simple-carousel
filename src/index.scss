@@ -11,6 +11,10 @@
         white-space: nowrap;
         overflow: hidden;
         left: -100%;
+        &:after {
+            content: '';
+            clear: both;
+        }
         .slider {
             float: left;
             background: center/contain no-repeat;
@@ -33,7 +37,6 @@
             display: inline-block;
             width: 10px;
             height: 10px;
-            background: #000;
             border-radius: 50%;
             background: rgba(#bbb, 0.6);
             transition: width 1s;

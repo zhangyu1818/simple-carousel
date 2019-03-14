@@ -72,7 +72,6 @@ class Carousel {
         this.carouselWrapper = document.querySelector(element);
         if (!this.carouselWrapper) throw new Error("can't find element");
         const list = [imgList[imgList.length - 1], ...imgList, imgList[0]];
-        this.carouselWrapper.style.width = width + 'px';
         this.carouselWidth = width;
         this.minOffset = -imgList.length * width;
         this.maxOffset = width;
@@ -80,7 +79,8 @@ class Carousel {
         this.duration = duration;
         this.carouselWrapper.innerHTML = createScroll(list, width, height, pagination, arrowButton);
         this.scrollEle = document.querySelector(`.${styles.scroll}`);
-        this.dots = Array.from(document.querySelectorAll(`.${styles.dot}`));
+        this.scrollEle!.style.width = (imgList.length + 2) * width + 'px';
+        this.dots = Array.prototype.slice.call(document.querySelectorAll(`.${styles.dot}`));
         this.prevButton = document.querySelector(`.${styles['prev-button']}`);
         this.nextButton = document.querySelector(`.${styles['next-button']}`);
         window.addEventListener('mousedown', this.onDragStart);
