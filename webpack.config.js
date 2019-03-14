@@ -3,8 +3,9 @@ const CleanWebpackPlugin = require('clean-webpack-plugin');
 const webpack = require('webpack');
 const merge = require('webpack-merge');
 
-module.exports = (env, argv) => {
+module.exports = (env, { mode }) => {
     const config = {
+        mode,
         entry: {
             index: './src/index.ts',
             demo: './src/demo.ts',
@@ -73,5 +74,5 @@ module.exports = (env, argv) => {
         plugins: [new CleanWebpackPlugin()],
         devtool: 'none',
     };
-    return env.production ? merge(config, prod) : merge(config, dev);
+    return mode === 'production' ? merge(config, prod) : merge(config, dev);
 };

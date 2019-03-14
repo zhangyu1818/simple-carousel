@@ -1,4 +1,6 @@
-const Tween = {
+type TweenType = { [index: string]: any };
+
+const Tween: TweenType = {
     Linear: (t: number, b: number, c: number, d: number) => (c * t) / d + b,
     Quad: {
         easeIn: (t: number, b: number, c: number, d: number) => c * (t /= d) * t + b,
@@ -131,4 +133,8 @@ const Tween = {
         },
     },
 };
-export default Tween;
+export default (tween: string) => {
+    const [name, func] = tween.split('.');
+    if (!func) return Tween.Linear;
+    return Tween[name][func];
+};

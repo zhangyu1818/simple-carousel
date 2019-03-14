@@ -11,15 +11,6 @@ enum directionType {
 
 const direction = (offset: number) => (offset > 1 ? directionType.left : directionType.right);
 
-interface CarouselOption {
-    width?: number;
-    height?: number;
-    element: string;
-    duration?: number;
-    tween?: string;
-    pagination?: boolean;
-    arrowButton?: boolean;
-}
 const createPagination = (length: number) => {
     let str = `<div class="${styles.pagination}">`;
     for (let i = 0; i < length; i++) {
@@ -40,6 +31,50 @@ const createScroll = (imgList: string[], width: number, height: number, paginati
             </div>`;
 };
 
+type TweenFunc =
+    | 'Linear'
+    | 'Quad.easeIn'
+    | 'Quad.easeOut'
+    | 'Quad.easeInOut'
+    | 'Cubic.easeIn'
+    | 'Cubic.easeOut'
+    | 'Cubic.easeInOut'
+    | 'Quart.easeIn'
+    | 'Quart.easeOut'
+    | 'Quart.easeInOut'
+    | 'Quint.easeIn'
+    | 'Quint.easeOut'
+    | 'Quint.easeInOut'
+    | 'Sine.easeIn'
+    | 'Sine.easeOut'
+    | 'Sine.easeInOut'
+    | 'Expo.easeIn'
+    | 'Expo.easeOut'
+    | 'Expo.easeInOut'
+    | 'Circ.easeIn'
+    | 'Circ.easeOut'
+    | 'Circ.easeInOut'
+    | 'Elastic.easeIn'
+    | 'Elastic.easeOut'
+    | 'Elastic.easeInOut'
+    | 'Back.easeIn'
+    | 'Back.easeOut'
+    | 'Back.easeInOut'
+    | 'Bounce.easeIn'
+    | 'Bounce.easeOut'
+    | 'Bounce.easeInOut';
+
+interface CarouselOption {
+    width?: number;
+    height?: number;
+    element: string;
+    duration?: number;
+    tween?: TweenFunc;
+    pagination?: boolean;
+    arrowButton?: boolean;
+    momentum?: number;
+}
+
 class Carousel {
     carouselWrapper: HTMLElement | null;
     scrollEle: HTMLElement | null;
@@ -56,10 +91,13 @@ class Carousel {
     duration = 0;
     prevOffset = 0;
     currentOffset = 0;
+    lastIndex = 0;
     currentIndex = 0;
+    tween: string;
     dotsIndex = 0;
     maxOffset = 0;
     minOffset = 0;
+    momentum = 2;
     dots: Array<HTMLElement>;
     imgLength = 0;
     prevButton: HTMLElement | null;
@@ -68,7 +106,7 @@ class Carousel {
     animateCompleted = true;
 
     constructor(options: CarouselOption, imgList: string[]) {
-        const { width = 1200, height = 500, element, duration = 1, pagination = true, arrowButton = true } = options;
+        const { width = 1200, height = 500, element, duration = 1, pagination = true, arrowButton = true, momentum = 2, tween = 'Quart.easeOut' } = options;
         this.carouselWrapper = document.querySelector(element);
         if (!this.carouselWrapper) throw new Error("can't find element");
         const list = [imgList[imgList.length - 1], ...imgList, imgList[0]];
@@ -77,6 +115,8 @@ class Carousel {
         this.maxOffset = width;
         this.imgLength = imgList.length;
         this.duration = duration;
+        this.momentum = momentum;
+        this.tween = tween;
         this.carouselWrapper.innerHTML = createScroll(list, width, height, pagination, arrowButton);
         this.scrollEle = document.querySelector(`.${styles.scroll}`);
         this.scrollEle!.style.width = (imgList.length + 2) * width + 'px';
@@ -86,6 +126,11 @@ class Carousel {
         window.addEventListener('mousedown', this.onDragStart);
         window.addEventListener('mousemove', this.onDragMove);
         window.addEventListener('mouseup', this.onDragEnd);
+
+        window.addEventListener('touchstart', this.onDragStart);
+        window.addEventListener('touchmove', this.onDragMove);
+        window.addEventListener('touchend', this.onDragEnd);
+
         this.carouselWrapper.addEventListener('click', this.onClickButton);
     }
 
@@ -102,19 +147,24 @@ class Carousel {
         }
     };
 
-    onDragStart = (event: MouseEvent) => {
+    onDragStart = (event: MouseEvent | TouchEvent) => {
+        event.stopPropagation();
         const target = event.target as HTMLElement;
         if (!target.classList.contains(styles.carousel)) return;
         if (this.animateTimer) cancelAnimationFrame(this.animateTimer);
-        const { pageX, timeStamp } = event;
+        const { timeStamp } = event;
+        const { pageX } = event.type === 'mousedown' ? (event as MouseEvent) : (event as TouchEvent).touches[0];
         this.startInfo.pos = pageX;
         this.startInfo.timeStamp = timeStamp;
         this.startInfo.isDrag = true;
+        this.lastIndex = this.currentIndex;
     };
 
-    onDragMove = (event: MouseEvent) => {
+    onDragMove = (event: MouseEvent | TouchEvent) => {
         if (!this.startInfo.isDrag) return;
-        const { pageX, timeStamp } = event;
+        event.stopPropagation();
+        const { timeStamp } = event;
+        const { pageX } = event.type === 'mousemove' ? (event as MouseEvent) : (event as TouchEvent).touches[0];
         this.moveInfo.pos = pageX;
         this.moveInfo.timeStamp = timeStamp;
         this.currentOffset = this.moveInfo.pos - this.startInfo.pos + this.prevOffset;
@@ -129,11 +179,15 @@ class Carousel {
         this.setDotsIndex();
     };
 
-    onDragEnd = () => {
+    onDragEnd = (event: MouseEvent | TouchEvent) => {
         if (!this.startInfo.isDrag) return;
+        event.stopPropagation();
+        event.preventDefault();
         this.startInfo.isDrag = false;
         this.prevOffset = this.currentOffset;
         this.setDotsIndex();
+        const speed = (this.moveInfo.pos - this.startInfo.pos) / (this.moveInfo.timeStamp - this.startInfo.timeStamp);
+        if (this.lastIndex === this.currentIndex && Math.abs(speed) > this.momentum) speed > 0 ? this.currentIndex++ : this.currentIndex--;
         this.animate();
     };
 
@@ -156,7 +210,7 @@ class Carousel {
         const callback = () => {
             const currentTime = Date.now();
             const delta = (currentTime - startTime) / 1000;
-            const offset = Tween.Linear(delta, startPos, endPos, duration);
+            const offset = Tween(this.tween)(delta, startPos, endPos, duration);
             this.scrollEle!.style.transform = `translate3d(${offset}px,0,0)`;
             this.currentOffset = offset;
             this.prevOffset = offset;

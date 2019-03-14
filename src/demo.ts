@@ -8,6 +8,7 @@ new Carousel(
         duration: 0.5,
         width: 1200,
         height: 500,
+        tween: 'Quart.easeOut',
     },
     list
 );
