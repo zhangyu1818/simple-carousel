@@ -73,6 +73,8 @@ interface CarouselOption {
     pagination?: boolean;
     arrowButton?: boolean;
     momentum?: number;
+    autoplay?: boolean;
+    autoplayDelay?: number;
 }
 
 class Carousel {
@@ -104,9 +106,23 @@ class Carousel {
     nextButton: HTMLElement | null;
     animateTimer = 0;
     animateCompleted = true;
+    autoplay: boolean;
+    autoplayTimer = 0;
+    autoplayDelay: number;
 
     constructor(options: CarouselOption, imgList: string[]) {
-        const { width = 1200, height = 500, element, duration = 1, pagination = true, arrowButton = true, momentum = 2, tween = 'Quart.easeOut' } = options;
+        const {
+            width = 1200,
+            height = 500,
+            element,
+            duration = 1,
+            pagination = true,
+            arrowButton = true,
+            momentum = 2,
+            tween = 'Quart.easeOut',
+            autoplay = true,
+            autoplayDelay = 5,
+        } = options;
         this.carouselWrapper = document.querySelector(element);
         if (!this.carouselWrapper) throw new Error("can't find element");
         const list = [imgList[imgList.length - 1], ...imgList, imgList[0]];
@@ -117,6 +133,8 @@ class Carousel {
         this.duration = duration;
         this.momentum = momentum;
         this.tween = tween;
+        this.autoplay = autoplay;
+        this.autoplayDelay = autoplayDelay * 1000;
         this.carouselWrapper.innerHTML = createScroll(list, width, height, pagination, arrowButton);
         this.scrollEle = document.querySelector(`.${styles.scroll}`);
         this.scrollEle!.style.width = (imgList.length + 2) * width + 'px';
@@ -132,6 +150,8 @@ class Carousel {
         window.addEventListener('touchend', this.onDragEnd);
 
         this.carouselWrapper.addEventListener('click', this.onClickButton);
+
+        if (autoplay) this.autoPlay();
     }
 
     onClickButton = (event: MouseEvent) => {
@@ -152,6 +172,7 @@ class Carousel {
         const target = event.target as HTMLElement;
         if (!target.classList.contains(styles.carousel)) return;
         if (this.animateTimer) cancelAnimationFrame(this.animateTimer);
+        if (this.autoplayTimer) clearTimeout(this.autoplayTimer);
         const { timeStamp } = event;
         const { pageX } = event.type === 'mousedown' ? (event as MouseEvent) : (event as TouchEvent).touches[0];
         this.startInfo.pos = pageX;
@@ -199,7 +220,12 @@ class Carousel {
                 : dot.classList.remove(styles.current)
         );
     };
-
+    autoPlay = () => {
+        if (this.autoplayTimer) clearTimeout(this.autoplayTimer);
+        this.autoplayTimer = window.setTimeout(() => {
+            this.animate(--this.currentIndex);
+        }, this.autoplayDelay);
+    };
     animate = (index = this.currentIndex) => {
         if (this.animateTimer) cancelAnimationFrame(this.animateTimer);
         const startTime = Date.now();
@@ -224,6 +250,7 @@ class Carousel {
                 this.currentOffset = completedOffset;
                 this.prevOffset = completedOffset;
                 this.scrollEle!.style.transform = `translate3d(${completedOffset}px,0,0)`;
+                if (this.autoplay) this.autoPlay();
                 return;
             }
             this.animateTimer = requestAnimationFrame(callback);
@@ -231,4 +258,5 @@ class Carousel {
         callback();
     };
 }
+
 export default Carousel;
