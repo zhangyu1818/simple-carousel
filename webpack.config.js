@@ -73,6 +73,10 @@ module.exports = (env, { mode }) => {
         mode: 'production',
         plugins: [new CleanWebpackPlugin()],
         devtool: 'none',
+        output: {
+            library: 'Carousel',
+            libraryTarget: 'umd',
+        },
     };
     return mode === 'production' ? merge(config, prod) : merge(config, dev);
 };
