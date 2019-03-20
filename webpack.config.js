@@ -8,10 +8,11 @@ module.exports = (env, { mode }) => {
         mode,
         entry: {
             index: './src/index.ts',
-            demo: './src/demo.ts',
         },
         output: {
             filename: '[name].js',
+            library: 'Carousel',
+            libraryTarget: 'umd',
         },
         resolve: {
             extensions: ['.ts', '.js'],
@@ -52,12 +53,6 @@ module.exports = (env, { mode }) => {
                 },
             ],
         },
-        plugins: [
-            new HtmlWebpackPlugin({
-                template: './src/index.html',
-                chunks: ['demo'],
-            }),
-        ],
     };
     const dev = {
         mode: 'development',
@@ -67,16 +62,18 @@ module.exports = (env, { mode }) => {
             open: true,
             hot: true,
         },
-        plugins: [new webpack.HotModuleReplacementPlugin()],
+        plugins: [
+            new HtmlWebpackPlugin({
+                template: './src/index.html',
+                inject: 'head',
+            }),
+            new webpack.HotModuleReplacementPlugin(),
+        ],
     };
     const prod = {
         mode: 'production',
         plugins: [new CleanWebpackPlugin()],
         devtool: 'none',
-        output: {
-            library: 'Carousel',
-            libraryTarget: 'umd',
-        },
     };
     return mode === 'production' ? merge(config, prod) : merge(config, dev);
 };
