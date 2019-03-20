@@ -1,7 +1,7 @@
 {
-    "name": "simple-carousel",
+    "name": "simple-carousel-js",
     "version": "1.0.0",
-    "description": "simple-carousel",
+    "description": "a simple carousel without jQuery",
     "main": "dist/index.js",
     "scripts": {
         "start:dev": "webpack-dev-server --mode=development",
