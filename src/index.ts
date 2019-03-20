@@ -9,37 +9,35 @@ enum directionType {
 
 const clamp = (current: number, min: number, max: number) => Math.min(Math.max(min, current), max);
 
-const jsToCss = (cssObject: any) => {
-    if (!cssObject) return;
-    let cssString = '';
-    Object.keys(cssObject).forEach(key => {
-        cssString += key.replace(/([A-Z])/g, g => `-${g[0].toLowerCase()}`) + ': ' + cssObject[key] + ';';
-    });
-    return cssString;
-};
 const direction = (offset: number) => (offset > 1 ? directionType.left : directionType.right);
 
-const createPagination = (length: number, paginationStyle: any, dotStyle: any) => {
-    let str = `<div class="${styles.pagination}" style="${jsToCss(paginationStyle)}">`;
+const createPagination = (length: number, paginationClass: string, dotClass: string) => {
+    let str = `<div class="${styles.pagination} ${paginationClass}">`;
     for (let i = 0; i < length; i++) {
-        str += `<span style="${jsToCss(dotStyle)}" data-index="${i}" class="${styles.dot}${i === 0 ? ' ' + styles.current : ''}"></span>`;
+        str += `<span data-index="${i}" class="${styles.dot}${i === 0 ? ' ' + styles.current : ''} ${dotClass}"></span>`;
     }
     str += '</div>';
     return str;
 };
 
-const createArrow = (prevButtonStyle: any, nextButtonStyle: any) =>
-    `<span style="${jsToCss(prevButtonStyle)}" class="${styles.button} ${styles['prev-button']}"></span><span style="${jsToCss(nextButtonStyle)}" class="${
-        styles.button
-    } ${styles['next-button']}"></span>`;
+const createArrow = (prevButtonClass: string, nextButtonClass: string) =>
+    `<span class="${styles.button} ${styles['prev-button']} ${prevButtonClass}"></span><span class="${styles.button} ${
+        styles['next-button']
+    } ${nextButtonClass}"></span>`;
 
-const createScroll = (imgList: string[], width: string, height: string, pagination: boolean, button: boolean, customStyle: CarouselStyles) => {
-    const { paginationStyle, dotStyle, prevButtonStyle, nextButtonStyle } = customStyle;
-    const sliders = imgList.map(img => `<div class="${styles.slider}" style="background-image: url('${img}');width: ${width};height: ${height};"></div>`);
+const createScroll = (imgList: string[], width: string, height: string, pagination: boolean, button: boolean, customClass: CarouselStyles) => {
+    const customClassStr: { [key: string]: string } = {};
+    Object.keys(customClass).forEach(key => {
+        customClassStr[key] = customClass[key] instanceof Array ? customClass[key].join(' ') : customClass[key];
+    });
+    const { imgClass = '', paginationClass = '', dotClass = '', prevButtonClass = '', nextButtonClass = '' } = customClassStr;
+    const sliders = imgList.map(
+        img => `<div class="${styles.slider} ${imgClass}" style="background-image: url('${img}');width: ${width};height: ${height};"></div>`
+    );
     return `<div class="${styles.carousel}" style="width: ${width};height: ${height};">
                 <div class="${styles.scroll}">${sliders.join('')}</div>
-                ${pagination ? createPagination(imgList.length - 2, paginationStyle, dotStyle) : ''}
-                ${button ? createArrow(prevButtonStyle, nextButtonStyle) : ''}
+                ${pagination ? createPagination(imgList.length - 2, paginationClass, dotClass) : ''}
+                ${button ? createArrow(prevButtonClass, nextButtonClass) : ''}
             </div>`;
 };
 
@@ -88,64 +86,67 @@ interface CarouselOption {
     autoplay?: boolean;
     autoplayDelay?: number;
     scale?: boolean;
+    customStyles: CarouselStyles;
 }
 
 type CarouselStyles = {
-    paginationStyle?: object;
-    dotStyle?: object;
-    prevButtonStyle?: object;
-    nextButtonStyle?: Object;
+    [index: string]: any;
+    imgClass?: string | string[];
+    paginationClass?: string | string[];
+    dotClass?: string | string[];
+    prevButtonClass?: string | string[];
+    nextButtonClass?: string | string[];
 };
+
 class Carousel {
-    carouselWrapper: HTMLElement | null;
-    scrollEle: HTMLElement | null;
-    startInfo = {
+    private readonly carouselWrapper: HTMLElement | null;
+    private readonly carouselWidth: number;
+    private readonly duration: number;
+    private readonly tween: string;
+    private readonly minOffset: number;
+    private readonly momentum: number;
+    private readonly imgLength: number;
+    private readonly autoplay: boolean;
+    private readonly autoplayDelay: number;
+    private readonly enableScale: boolean;
+
+    private scrollEle: HTMLElement | null;
+    private startInfo = {
         pos: 0,
         timeStamp: 0,
         isDrag: false,
     };
-    moveInfo = {
+    private moveInfo = {
         pos: 0,
         timeStamp: 0,
     };
-    carouselWidth = 0;
-    duration = 0;
-    prevOffset = 0;
-    currentOffset = 0;
-    lastIndex = 0;
-    currentIndex = 0;
-    tween: string;
-    dotsIndex = 0;
-    maxOffset = 0;
-    minOffset = 0;
-    momentum = 2;
-    dots: Array<HTMLElement>;
-    sliders: Array<HTMLElement>;
-    imgLength = 0;
-    prevButton: HTMLElement | null;
-    nextButton: HTMLElement | null;
-    animateTimer = 0;
-    animateCompleted = true;
-    autoplay: boolean;
-    autoplayTimer = 0;
-    autoplayDelay: number;
-    enableScale: boolean;
-    prevScale = 1;
-    scale = 1;
+    private prevOffset = 0;
+    private currentOffset = 0;
+    private lastIndex = 0;
+    private currentIndex = 0;
+    private dotsIndex = 0;
+    private dots: Array<HTMLElement>;
+    private sliders: Array<HTMLElement>;
+    private animateTimer = 0;
+    private animateCompleted = true;
+    private autoplayTimer = 0;
+    private prevScale = 1;
+    private scale = 1;
 
-    constructor(imgList: string[], options: CarouselOption, customStyles: CarouselStyles = {}) {
+    constructor(imgList: string[], options: CarouselOption) {
         const {
-            width = '1200px',
-            height = '500px',
+            width = '100vw',
+            height = '50vh',
             element,
             duration = 1,
             pagination = true,
             arrowButton = true,
-            momentum = 2,
+            momentum = 1,
             tween = 'Quart.easeOut',
             autoplay = true,
             autoplayDelay = 5,
             scale = false,
+            customStyles = {},
         } = options;
         this.carouselWrapper = document.querySelector(element);
         if (!this.carouselWrapper) throw new Error("can't find element");
@@ -154,7 +155,6 @@ class Carousel {
         const { width: carouselWidth } = this.carouselWrapper.querySelector(`.${styles.carousel}`)!.getBoundingClientRect();
         this.carouselWidth = carouselWidth;
         this.minOffset = -imgList.length * carouselWidth;
-        this.maxOffset = carouselWidth;
         this.imgLength = imgList.length;
         this.duration = duration;
         this.momentum = momentum;
@@ -166,8 +166,6 @@ class Carousel {
         this.scrollEle!.style.width = (imgList.length + 2) * carouselWidth + 'px';
         this.dots = Array.prototype.slice.call(document.querySelectorAll(`.${styles.dot}`));
         if (this.enableScale) this.sliders = Array.prototype.slice.call(document.querySelectorAll(`.${styles.slider}`));
-        this.prevButton = document.querySelector(`.${styles['prev-button']}`);
-        this.nextButton = document.querySelector(`.${styles['next-button']}`);
         window.addEventListener('mousedown', this.onDragStart);
         window.addEventListener('mousemove', this.onDragMove);
         window.addEventListener('mouseup', this.onDragEnd);
@@ -180,8 +178,16 @@ class Carousel {
 
         if (autoplay) this.autoPlay();
     }
-
-    onClickButton = (event: MouseEvent) => {
+    public destroy = () => {
+        window.removeEventListener('mousedown', this.onDragStart);
+        window.removeEventListener('mousemove', this.onDragMove);
+        window.removeEventListener('mouseup', this.onDragEnd);
+        window.removeEventListener('touchstart', this.onDragStart);
+        window.removeEventListener('touchmove', this.onDragMove);
+        window.removeEventListener('touchend', this.onDragEnd);
+        this.carouselWrapper!.removeEventListener('click', this.onClickButton);
+    };
+    private onClickButton = (event: MouseEvent) => {
         event.stopPropagation();
         event.preventDefault();
         const target = event.target as HTMLElement;
@@ -194,7 +200,7 @@ class Carousel {
         }
     };
 
-    onDragStart = (event: MouseEvent | TouchEvent) => {
+    private onDragStart = (event: MouseEvent | TouchEvent) => {
         event.stopPropagation();
         const target = event.target as HTMLElement;
         if (!target.classList.contains(styles.carousel)) return;
@@ -208,7 +214,7 @@ class Carousel {
         this.lastIndex = this.currentIndex;
     };
 
-    onDragMove = (event: MouseEvent | TouchEvent) => {
+    private onDragMove = (event: MouseEvent | TouchEvent) => {
         if (!this.startInfo.isDrag) return;
         event.stopPropagation();
         const { timeStamp } = event;
@@ -226,8 +232,11 @@ class Carousel {
         this.scrollEle!.style.transform = `translate3d(${this.currentOffset}px,0,0)`;
         if (this.enableScale) {
             this.scale = this.prevScale - Math.abs(distance) / this.carouselWidth / 2;
+            const shadow = 1 - this.scale;
             this.sliders.forEach(slider => {
                 slider.style.transform = `scale(${this.scale})`;
+                slider.style.boxShadow = `0 ${52.5 * shadow}px ${115 * shadow}px ${-15 * shadow}px rgba(50, 50, 73, 0.5), 0 ${27.5 * shadow}px ${65 *
+                    shadow}px ${-27.5 * shadow}px rgba(0, 0, 0, 0.6)`;
             });
         }
         this.currentIndex = Math.round(this.currentOffset / this.carouselWidth);
@@ -235,7 +244,7 @@ class Carousel {
         this.setDotsIndex(tempIndex === 1 ? 1 - this.imgLength : tempIndex);
     };
 
-    onDragEnd = (event: MouseEvent | TouchEvent) => {
+    private onDragEnd = (event: MouseEvent | TouchEvent) => {
         if (!this.startInfo.isDrag) return;
         event.stopPropagation();
         event.preventDefault();
@@ -247,7 +256,7 @@ class Carousel {
         this.animate();
     };
 
-    setDotsIndex = (currentIndex?: number) => {
+    private setDotsIndex = (currentIndex?: number) => {
         this.dotsIndex = Math.round(clamp(this.currentOffset, this.minOffset + this.carouselWidth, 0) / this.carouselWidth);
         this.dots.forEach((dot, index) =>
             index === Math.abs(currentIndex !== undefined ? currentIndex : this.dotsIndex)
@@ -255,13 +264,13 @@ class Carousel {
                 : dot.classList.remove(styles.current)
         );
     };
-    autoPlay = () => {
+    private autoPlay = () => {
         if (this.autoplayTimer) clearTimeout(this.autoplayTimer);
         this.autoplayTimer = window.setTimeout(() => {
             this.animate(--this.currentIndex);
         }, this.autoplayDelay);
     };
-    animate = (index = this.currentIndex) => {
+    private animate = (index = this.currentIndex) => {
         if (this.animateTimer) cancelAnimationFrame(this.animateTimer);
         const startTime = Date.now();
         const duration = this.duration;

@@ -1,13 +1,18 @@
 {
     "name": "simple-carousel-js",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "a simple carousel without jQuery",
     "main": "dist/index.js",
+    "types": "./index.d.ts",
     "scripts": {
         "start:dev": "webpack-dev-server --mode=development",
         "build": "webpack --mode=production"
     },
-    "author": "zhangyu1995",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/zhangyu1818/simple-carousel.git"
+    },
+    "author": "zhangyu1818",
     "license": "MIT",
     "devDependencies": {
         "@babel/core": "^7.3.4",
