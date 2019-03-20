@@ -1,6 +1,9 @@
 # simple-carousel
 
 a simple carousel,without jQuery
+** with react **
+![phone](https://i.imgur.com/MVa0a6c.gif)
+![web](https://i.imgur.com/iXNh9ZC.gif)
 
 # Installation
 
@@ -36,4 +39,4 @@ const carousel = new Carousel(img, {
     },
 });
 ```
-[tween](https://www.zhangxinxu.com/study/201612/how-to-use-tween-js.html)
+see [tween](https://www.zhangxinxu.com/study/201612/how-to-use-tween-js.html)
