@@ -1,9 +1,12 @@
 # simple-carousel
 
 a simple carousel,without jQuery
-** with react **
-![phone](https://i.imgur.com/MVa0a6c.gif)
-![web](https://i.imgur.com/iXNh9ZC.gif)
+
+**Preview**
+
+[phone](https://i.imgur.com/MVa0a6c.gif)
+
+[web](https://i.imgur.com/iXNh9ZC.gif)
 
 # Installation
 
