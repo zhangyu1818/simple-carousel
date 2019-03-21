@@ -37,7 +37,6 @@ declare class Carousel {
     private moveInfo;
     private prevOffset;
     private currentOffset;
-    private lastIndex;
     private currentIndex;
     private dotsIndex;
     private dots;

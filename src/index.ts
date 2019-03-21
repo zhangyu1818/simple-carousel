@@ -2,14 +2,7 @@
 import styles from './index.scss';
 import Tween from './tween';
 
-enum directionType {
-    left = 1,
-    right = -1,
-}
-
 const clamp = (current: number, min: number, max: number) => Math.min(Math.max(min, current), max);
-
-const direction = (offset: number) => (offset > 1 ? directionType.left : directionType.right);
 
 const createPagination = (length: number, paginationClass: string, dotClass: string) => {
     let str = `<div class="${styles.pagination} ${paginationClass}">`;
@@ -122,7 +115,6 @@ class Carousel {
     };
     private prevOffset = 0;
     private currentOffset = 0;
-    private lastIndex = 0;
     private currentIndex = 0;
     private dotsIndex = 0;
     private dots: Array<HTMLElement>;
@@ -178,6 +170,7 @@ class Carousel {
 
         if (autoplay) this.autoPlay();
     }
+
     public destroy = () => {
         window.removeEventListener('mousedown', this.onDragStart);
         window.removeEventListener('mousemove', this.onDragMove);
@@ -211,7 +204,16 @@ class Carousel {
         this.startInfo.pos = pageX;
         this.startInfo.timeStamp = timeStamp;
         this.startInfo.isDrag = true;
-        this.lastIndex = this.currentIndex;
+        if (this.currentOffset < -(this.imgLength - 1) * this.carouselWidth - this.carouselWidth / 2) {
+            this.currentOffset += -this.minOffset;
+            this.prevOffset = this.currentOffset;
+            this.scrollEle!.style.transform = `translate3d(${this.currentOffset}px,0,0)`;
+        } else if (this.currentOffset > this.carouselWidth / 2) {
+            this.currentOffset += this.minOffset;
+            this.prevOffset = this.currentOffset;
+            this.scrollEle!.style.transform = `translate3d(${this.currentOffset}px,0,0)`;
+        }
+        this.currentIndex = Math.round(this.currentOffset / this.carouselWidth);
     };
 
     private onDragMove = (event: MouseEvent | TouchEvent) => {
@@ -223,12 +225,6 @@ class Carousel {
         this.moveInfo.timeStamp = timeStamp;
         const distance = this.moveInfo.pos - this.startInfo.pos;
         this.currentOffset = distance + this.prevOffset;
-        const offsetDirection = direction(this.moveInfo.pos - this.startInfo.pos);
-        if (this.currentOffset > this.carouselWidth / 2 && offsetDirection === directionType.left) {
-            this.currentOffset += this.minOffset;
-        } else if (this.currentOffset < this.minOffset + this.carouselWidth / 2 && offsetDirection === directionType.right) {
-            this.currentOffset += -this.minOffset;
-        }
         this.scrollEle!.style.transform = `translate3d(${this.currentOffset}px,0,0)`;
         if (this.enableScale) {
             this.scale = this.prevScale - Math.abs(distance) / this.carouselWidth / 2;
@@ -239,8 +235,7 @@ class Carousel {
                     shadow}px ${-27.5 * shadow}px rgba(0, 0, 0, 0.6)`;
             });
         }
-        this.currentIndex = Math.round(this.currentOffset / this.carouselWidth);
-        const tempIndex = this.currentIndex % this.imgLength;
+        const tempIndex = Math.round(this.currentOffset / this.carouselWidth) % this.imgLength;
         this.setDotsIndex(tempIndex === 1 ? 1 - this.imgLength : tempIndex);
     };
 
@@ -252,7 +247,14 @@ class Carousel {
         this.prevOffset = this.currentOffset;
         if (this.enableScale) this.prevScale = this.scale;
         const speed = (this.moveInfo.pos - this.startInfo.pos) / (this.moveInfo.timeStamp - this.startInfo.timeStamp);
-        if (this.lastIndex === this.currentIndex && Math.abs(speed) > this.momentum) speed > 0 ? this.currentIndex++ : this.currentIndex--;
+        const isNext =
+            speed < 0
+                ? Math.abs(this.currentOffset) % this.carouselWidth > this.carouselWidth / 2
+                : this.currentOffset < 0
+                ? this.carouselWidth - (Math.abs(this.currentOffset) % this.carouselWidth) > this.carouselWidth / 2
+                : this.currentOffset > this.carouselWidth / 2;
+
+        if (isNext || Math.abs(speed) > this.momentum) speed > 0 ? this.currentIndex++ : this.currentIndex--;
         this.animate();
     };
 
