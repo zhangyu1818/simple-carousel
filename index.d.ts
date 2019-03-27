@@ -11,6 +11,7 @@ interface CarouselOption {
     autoplay?: boolean;
     autoplayDelay?: number;
     scale?: boolean;
+    preventDefault:boolean;
     customStyles: CarouselStyles;
 }
 declare type CarouselStyles = {
@@ -32,6 +33,7 @@ declare class Carousel {
     private readonly autoplay;
     private readonly autoplayDelay;
     private readonly enableScale;
+    private readonly preventDefault;
     private scrollEle;
     private startInfo;
     private moveInfo;

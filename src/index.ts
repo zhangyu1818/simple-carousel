@@ -82,6 +82,7 @@ interface CarouselOption {
     autoplay?: boolean;
     autoplayDelay?: number;
     scale?: boolean;
+    preventDefault?:boolean,
     customStyles: CarouselStyles;
 }
 
@@ -105,6 +106,7 @@ class Carousel {
     private readonly autoplay: boolean;
     private readonly autoplayDelay: number;
     private readonly enableScale: boolean;
+    private readonly preventDefault:boolean;
 
     private scrollEle: HTMLElement | null;
     private startInfo = {
@@ -130,18 +132,19 @@ class Carousel {
 
     constructor(imgList: string[], options: CarouselOption) {
         const {
-                  width         = '100vw',
-                  height        = '50vh',
+                  width          = '100vw',
+                  height         = '50vh',
                   element,
-                  duration      = 1,
-                  pagination    = true,
-                  arrowButton   = true,
-                  momentum      = 1,
-                  tween         = 'Quart.easeOut',
-                  autoplay      = true,
-                  autoplayDelay = 5,
-                  scale         = false,
-                  customStyles  = {},
+                  duration       = 1,
+                  pagination     = true,
+                  arrowButton    = true,
+                  momentum       = 1,
+                  tween          = 'Quart.easeOut',
+                  autoplay       = true,
+                  autoplayDelay  = 5,
+                  scale          = false,
+                  customStyles   = {},
+                  preventDefault = false,
               } = options;
         this.carouselWrapper = document.querySelector(element);
         if ( !this.carouselWrapper ) throw new Error('can\'t find element');
@@ -165,6 +168,7 @@ class Carousel {
         this.autoplay = autoplay;
         this.autoplayDelay = autoplayDelay * 1000;
         this.enableScale = scale;
+        this.preventDefault=preventDefault;
         this.scrollEle = document.querySelector(`.${ styles.scroll }`);
         this.scrollEle!.style.width = ( imgList.length + 2 ) * carouselWidth + 'px';
         this.dots = Array.prototype.slice.call(document.querySelectorAll(`.${ styles.dot }`));
@@ -207,6 +211,7 @@ class Carousel {
 
     private onDragStart = (event: MouseEvent | TouchEvent) => {
         event.stopPropagation();
+        if(this.preventDefault) event.preventDefault();
         const target = event.target as HTMLElement;
         if ( !target.classList.contains(styles.carousel) ) return;
         if ( this.animateTimer ) cancelAnimationFrame(this.animateTimer);
@@ -231,6 +236,7 @@ class Carousel {
     private onDragMove = (event: MouseEvent | TouchEvent) => {
         if ( !this.startInfo.isDrag ) return;
         event.stopPropagation();
+        if(this.preventDefault) event.preventDefault();
         const { timeStamp } = event;
         const { pageX } = event.type === 'mousemove' ? ( event as MouseEvent ) : ( event as TouchEvent ).touches[0];
         this.moveInfo.pos = pageX;
@@ -254,7 +260,7 @@ class Carousel {
     private onDragEnd = (event: MouseEvent | TouchEvent) => {
         if ( !this.startInfo.isDrag ) return;
         event.stopPropagation();
-        event.preventDefault();
+        if(this.preventDefault) event.preventDefault();
         this.startInfo.isDrag = false;
         this.prevOffset = this.currentOffset;
         if ( this.enableScale ) this.prevScale = this.scale;
