@@ -11,7 +11,7 @@ interface CarouselOption {
     autoplay?: boolean;
     autoplayDelay?: number;
     scale?: boolean;
-    preventDefault?:boolean;
+    preventDefault?: boolean;
     customStyles?: CarouselStyles;
 }
 declare type CarouselStyles = {

@@ -83,7 +83,7 @@ interface CarouselOption {
     autoplayDelay?: number;
     scale?: boolean;
     preventDefault?:boolean,
-    customStyles: CarouselStyles;
+    customStyles?: CarouselStyles;
 }
 
 type CarouselStyles = {
