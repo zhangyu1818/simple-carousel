@@ -8,6 +8,8 @@ a simple carousel,without jQuery
 
 [web](https://i.imgur.com/iXNh9ZC.gif)
 
+https://zhangyu1818.github.io/simple-carousel-demo.html
+
 # Installation
 
 `npm install simple-carousel-js`
