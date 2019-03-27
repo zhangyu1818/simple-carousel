@@ -11,13 +11,14 @@
         white-space: nowrap;
         overflow: hidden;
         left: -100%;
+        height: 100%;
         &:after {
             content: '';
             clear: both;
         }
         .slider {
             float: left;
-            background: center/contain no-repeat;
+            background: center/cover no-repeat;
         }
     }
     .pagination {

@@ -1,20 +1,33 @@
 <!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0" />
-        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-        <title>simple carousel</title>
-    </head>
-    <body>
-        <div class="carousel"></div>
-        <script>
-            const list = [
-                'https://placem.at/things?w=1200&h=500',
-                'https://placem.at/places?w=1200&h=500',
-                'https://placem.at/things?w=1200&random=some_seed&h=500',
-            ];
-            new Carousel.default(list, { element: '.carousel', duration: 0.5, width: '1200px',height:"500px",tween: 'Quart.easeOut',autoplay:false,momentum:1 });
-        </script>
-    </body>
-</html>
+<html lang="en" >
+<head >
+    <meta charset="UTF-8" />
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title >simple carousel</title >
+</head >
+<body >
+<div class="carousel" ></div >
+<script >
+    const list = [
+        'https://source.unsplash.com/950x400/?nature',
+        'https://source.unsplash.com/950x400/?water',
+        'https://source.unsplash.com/950x400/?build',
+        'https://source.unsplash.com/950x400/?cat',
+        'https://source.unsplash.com/950x400/?snow',
+        'https://source.unsplash.com/950x400/?sky',
+        'https://source.unsplash.com/950x400/?plane',
+    ];
+    new Carousel.default(list, {
+        element: '.carousel',
+        duration: 0.5,
+        width: '100%',
+        height: '100%',
+        tween: 'Quart.easeOut',
+        autoplay: false,
+        momentum: 1,
+    });
+</script >
+</body >
+</html >
