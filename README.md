@@ -33,6 +33,7 @@ const carousel = new Carousel(img, {
     momentum: 1, // turn to next page in a smaller number
     autoplay: true,
     autoplayDelay: 5,
+    preventDefault: false,
     scale: false, // it's occurs when dragging
     // custom class name，string or string array
     customStyles: {
