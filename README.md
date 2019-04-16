@@ -4,11 +4,11 @@ a simple carousel,without jQuery
 
 **Preview**
 
-[phone](https://i.imgur.com/MVa0a6c.gif)
+img
+ - [phone](https://i.imgur.com/MVa0a6c.gif)
+ - [web](https://i.imgur.com/iXNh9ZC.gif)
 
-[web](https://i.imgur.com/iXNh9ZC.gif)
-
-https://zhangyu1818.github.io/simple-carousel-demo.html
+live [demo](http://sbzy.me/simple-carousel)
 
 # Installation
 
