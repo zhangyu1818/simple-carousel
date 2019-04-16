@@ -13,6 +13,7 @@ module.exports = (env, { mode }) => {
             filename: '[name].js',
             library: 'Carousel',
             libraryTarget: 'umd',
+            libraryExport: 'default'
         },
         resolve: {
             extensions: ['.ts', '.js'],

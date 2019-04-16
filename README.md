@@ -44,5 +44,10 @@ const carousel = new Carousel(img, {
         nextButtonClass: '',
     },
 });
+
+// destroy,remove carousel html and event
+carousel.destroy()
 ```
-see [tween](https://www.zhangxinxu.com/study/201612/how-to-use-tween-js.html)
+See [tween](https://www.zhangxinxu.com/study/201612/how-to-use-tween-js.html)
+
+Also,you can use `script` tag

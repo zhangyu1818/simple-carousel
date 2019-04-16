@@ -82,7 +82,7 @@ interface CarouselOption {
     autoplay?: boolean;
     autoplayDelay?: number;
     scale?: boolean;
-    preventDefault?:boolean,
+    preventDefault?: boolean;
     customStyles?: CarouselStyles;
 }
 
@@ -106,7 +106,7 @@ class Carousel {
     private readonly autoplay: boolean;
     private readonly autoplayDelay: number;
     private readonly enableScale: boolean;
-    private readonly preventDefault:boolean;
+    private readonly preventDefault: boolean;
 
     private scrollEle: HTMLElement | null;
     private startInfo = {
@@ -117,6 +117,7 @@ class Carousel {
     private moveInfo = {
         pos: 0,
         timeStamp: 0,
+        isMove: false,
     };
     private prevOffset = 0;
     private currentOffset = 0;
@@ -168,11 +169,11 @@ class Carousel {
         this.autoplay = autoplay;
         this.autoplayDelay = autoplayDelay * 1000;
         this.enableScale = scale;
-        this.preventDefault=preventDefault;
-        this.scrollEle = document.querySelector(`.${ styles.scroll }`);
+        this.preventDefault = preventDefault;
+        this.scrollEle = document.querySelector(`${ element } .${ styles.scroll }`);
         this.scrollEle!.style.width = ( imgList.length + 2 ) * carouselWidth + 'px';
-        this.dots = Array.prototype.slice.call(document.querySelectorAll(`.${ styles.dot }`));
-        this.sliders = Array.prototype.slice.call(document.querySelectorAll(`.${ styles.slider }`));
+        this.dots = Array.prototype.slice.call(document.querySelectorAll(`${ element } .${ styles.dot }`));
+        this.sliders = Array.prototype.slice.call(document.querySelectorAll(`${ element } .${ styles.slider }`));
         window.addEventListener('mousedown', this.onDragStart);
         window.addEventListener('mousemove', this.onDragMove);
         window.addEventListener('mouseup', this.onDragEnd);
@@ -211,9 +212,9 @@ class Carousel {
 
     private onDragStart = (event: MouseEvent | TouchEvent) => {
         event.stopPropagation();
-        if(this.preventDefault) event.preventDefault();
+        if ( this.preventDefault ) event.preventDefault();
         const target = event.target as HTMLElement;
-        if ( !target.classList.contains(styles.carousel) ) return;
+        if ( !target.classList.contains(styles.carousel) || !this.carouselWrapper!.contains(target) ) return;
         if ( this.animateTimer ) cancelAnimationFrame(this.animateTimer);
         if ( this.autoplayTimer ) clearTimeout(this.autoplayTimer);
         const { timeStamp } = event;
@@ -221,6 +222,7 @@ class Carousel {
         this.startInfo.pos = pageX;
         this.startInfo.timeStamp = timeStamp;
         this.startInfo.isDrag = true;
+        this.moveInfo.isMove = false;
         if ( this.currentOffset < -( this.imgLength - 1 ) * this.carouselWidth - this.carouselWidth / 2 ) {
             this.currentOffset += -this.minOffset;
             this.prevOffset = this.currentOffset;
@@ -235,8 +237,9 @@ class Carousel {
 
     private onDragMove = (event: MouseEvent | TouchEvent) => {
         if ( !this.startInfo.isDrag ) return;
+        this.moveInfo.isMove = true;
         event.stopPropagation();
-        if(this.preventDefault) event.preventDefault();
+        if ( this.preventDefault ) event.preventDefault();
         const { timeStamp } = event;
         const { pageX } = event.type === 'mousemove' ? ( event as MouseEvent ) : ( event as TouchEvent ).touches[0];
         this.moveInfo.pos = pageX;
@@ -260,18 +263,20 @@ class Carousel {
     private onDragEnd = (event: MouseEvent | TouchEvent) => {
         if ( !this.startInfo.isDrag ) return;
         event.stopPropagation();
-        if(this.preventDefault) event.preventDefault();
+        if ( this.preventDefault ) event.preventDefault();
         this.startInfo.isDrag = false;
+        if ( !this.moveInfo.isMove ) this.moveInfo.pos = this.startInfo.pos;
         this.prevOffset = this.currentOffset;
         if ( this.enableScale ) this.prevScale = this.scale;
         const speed = ( this.moveInfo.pos - this.startInfo.pos ) / ( this.moveInfo.timeStamp - this.startInfo.timeStamp );
         const isNext =
-                  speed < 0
-                  ? Math.abs(this.currentOffset) % this.carouselWidth > this.carouselWidth / 2
-                  : this.currentOffset < 0
-                    ? this.carouselWidth - ( Math.abs(this.currentOffset) % this.carouselWidth ) > this.carouselWidth / 2
-                    : this.currentOffset > this.carouselWidth / 2;
-
+                  Math.abs(speed) !== 0
+                  ? speed < 0
+                    ? Math.abs(this.currentOffset) % this.carouselWidth > this.carouselWidth / 2
+                    : this.currentOffset < 0
+                      ? this.carouselWidth - ( Math.abs(this.currentOffset) % this.carouselWidth ) > this.carouselWidth / 2
+                      : this.currentOffset > this.carouselWidth / 2
+                  : false;
         if ( isNext || Math.abs(speed) > this.momentum ) speed > 0 ? this.currentIndex++ : this.currentIndex--;
         this.animate();
     };
@@ -281,7 +286,7 @@ class Carousel {
         this.dots.forEach((dot, index) =>
             index === Math.abs(currentIndex !== undefined ? currentIndex : this.dotsIndex)
             ? dot.classList.add(styles.current)
-            : dot.classList.remove(styles.current),
+            : dot.classList.remove(styles.current)
         );
     };
     private autoPlay = () => {

@@ -1,6 +1,6 @@
 {
     "name": "simple-carousel-js",
-    "version": "1.0.7",
+    "version": "1.0.8",
     "description": "a simple carousel without jQuery",
     "main": "dist/index.js",
     "types": "./index.d.ts",
