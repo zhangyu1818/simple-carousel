@@ -4,7 +4,7 @@ a simple carousel,without jQuery
 
 **Preview**
 
-live [demo](http://zhangyu1818.com/simple-carousel)
+live [demo](https://zhangyu1818.github.io/simple-carousel/)
 
 # Installation
 
